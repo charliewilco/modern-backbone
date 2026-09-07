@@ -1,0 +1,36 @@
+{
+	"name": "modern-backbone-workspace",
+	"private": true,
+	"license": "Unlicense",
+	"workspaces": [
+		"modern-backbone",
+		"modern-handlebars",
+		"examples/*"
+	],
+	"scripts": {
+		"build": "turbo run build",
+		"check": "npm run format:check && npm run lint && turbo run build typecheck test test:e2e",
+		"example": "npm run example:todos",
+		"example:hacker-news": "turbo run build --filter=@examples/hacker-news... && npm --workspace @examples/hacker-news run preview",
+		"example:tic-tac-toe": "turbo run build --filter=@examples/tic-tac-toe... && npm --workspace @examples/tic-tac-toe run preview",
+		"example:todos": "turbo run build --filter=@examples/todos... && npm --workspace @examples/todos run preview",
+		"example:weather": "turbo run build --filter=@examples/weather... && npm --workspace @examples/weather run preview",
+		"format": "biome format --write .",
+		"format:check": "biome format .",
+		"lint": "biome lint .",
+		"size": "turbo run size --filter=@charliewilco/modern-backbone --filter=@charliewilco/modern-handlebars",
+		"test": "turbo run test",
+		"test:coverage": "turbo run test:coverage",
+		"test:e2e": "turbo run test:e2e",
+		"typecheck": "turbo run typecheck"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.5.12",
+		"turbo": "^2.10.12",
+		"typescript": "^7.0.2"
+	},
+	"engines": {
+		"node": ">=26.0.0"
+	},
+	"packageManager": "npm@11.17.0"
+}

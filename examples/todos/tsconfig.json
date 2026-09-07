@@ -1,0 +1,21 @@
+{
+	"compilerOptions": {
+		"exactOptionalPropertyTypes": true,
+		"isolatedModules": true,
+		"lib": ["ES2024", "DOM", "DOM.Iterable"],
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"noEmit": true,
+		"noUncheckedIndexedAccess": true,
+		"paths": {
+			"@charliewilco/modern-backbone": ["../../modern-backbone/src/index.ts"],
+			"@charliewilco/modern-handlebars": ["../../modern-handlebars/src/index.ts"]
+		},
+		"skipLibCheck": true,
+		"strict": true,
+		"target": "ES2024",
+		"types": ["node"],
+		"verbatimModuleSyntax": true
+	},
+	"include": ["src/**/*.ts", "server.ts", "playwright.config.ts", "e2e/**/*.ts"]
+}

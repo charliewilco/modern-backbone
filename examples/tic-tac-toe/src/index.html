@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta
+			name="description"
+			content="A local Tic-Tac-Toe game built with modern Backbone primitives."
+		/>
+		<title>Modern Backbone Tic-Tac-Toe</title>
+		<link rel="stylesheet" href="./styles.css" />
+	</head>
+	<body>
+		<main id="app" class="app" aria-labelledby="page-title">
+			<header class="app-header">
+				<p class="eyebrow">Modern Backbone</p>
+				<h1 id="page-title">Tic-Tac-Toe</h1>
+				<p class="lede">A local game built from models, a collection, views, and routes.</p>
+			</header>
+
+			<nav class="starters" aria-label="Choose starting player">
+				<a href="/play/X" data-starter="X">X starts</a>
+				<a href="/play/O" data-starter="O">O starts</a>
+			</nav>
+
+			<section class="game" aria-labelledby="board-heading">
+				<h2 id="board-heading" class="visually-hidden">Game board</h2>
+				<p id="game-status" class="status" role="status" aria-live="polite"></p>
+				<div id="board" class="board"></div>
+				<button id="reset" class="reset" type="button">Reset game</button>
+			</section>
+		</main>
+
+		<script type="module" src="./app.ts"></script>
+	</body>
+</html>

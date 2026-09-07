@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta
+			name="description"
+			content="A small weather explorer built with Modern Backbone and Open-Meteo."
+		/>
+		<title>Modern Backbone Weather</title>
+		<link rel="stylesheet" href="./styles.css" />
+	</head>
+	<body>
+		<main id="app" class="app" aria-labelledby="page-title">
+			<header class="app-header">
+				<p class="eyebrow">Modern Backbone × Open-Meteo</p>
+				<h1 id="page-title">Weather</h1>
+				<p class="lede">Search the world. Read the weather. No API key required.</p>
+			</header>
+
+			<search>
+				<form id="place-search" class="search">
+					<label for="place-name">Find a place</label>
+					<div class="search-controls">
+						<input
+							id="place-name"
+							name="place"
+							type="search"
+							autocomplete="off"
+							placeholder="Portland, Kyoto, Nairobi…"
+							required
+						/>
+						<button type="submit">Search</button>
+					</div>
+				</form>
+			</search>
+
+			<p id="status" class="status" role="status" aria-live="polite"></p>
+
+			<section id="results" class="panel" aria-labelledby="results-heading">
+				<h2 id="results-heading">Search results</h2>
+				<ul id="place-list" class="place-list"></ul>
+				<p id="empty-results" class="empty-state">Search for a city to begin.</p>
+			</section>
+
+			<section id="forecast" class="panel forecast" aria-labelledby="forecast-heading" hidden></section>
+
+			<footer>
+				Forecast data by
+				<a href="https://open-meteo.com/" rel="noreferrer">Open-Meteo</a>.
+			</footer>
+		</main>
+
+		<script type="module" src="./app.ts"></script>
+	</body>
+</html>

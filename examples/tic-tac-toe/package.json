@@ -1,0 +1,25 @@
+{
+	"name": "@examples/tic-tac-toe",
+	"version": "0.1.0",
+	"private": true,
+	"license": "Unlicense",
+	"type": "module",
+	"scripts": {
+		"build": "parcel build src/index.html --dist-dir dist --public-url /",
+		"check": "npm run typecheck && npm run test:e2e",
+		"preview": "parcel serve src/index.html --port 4175 --host 127.0.0.1 --no-hmr",
+		"start": "npm run preview",
+		"test:e2e": "npm run build && playwright test",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@charliewilco/modern-backbone": "0.1.0",
+		"@charliewilco/modern-handlebars": "0.1.0"
+	},
+	"devDependencies": {
+		"@playwright/test": "^1.62.1",
+		"@types/node": "^24.13.3",
+		"parcel": "^2.16.4",
+		"typescript": "^7.0.2"
+	}
+}

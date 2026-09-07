@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta
+			name="description"
+			content="A tiny Todo app built with @charliewilco/modern-backbone."
+		/>
+		<title>Modern Backbone Todos</title>
+		<link rel="stylesheet" href="./styles.css" />
+	</head>
+	<body>
+		<main id="app" class="app" aria-labelledby="page-title">
+			<header class="app-header">
+				<p class="eyebrow">Modern Backbone</p>
+				<h1 id="page-title">Todos</h1>
+				<p class="lede">Four small primitives. The browser does the rest.</p>
+			</header>
+
+			<form id="new-todo" class="new-todo">
+				<label for="todo-title">What needs doing?</label>
+				<div class="new-todo-controls">
+					<input
+						id="todo-title"
+						name="title"
+						type="text"
+						autocomplete="off"
+						maxlength="120"
+						required
+					/>
+					<button type="submit">Add todo</button>
+				</div>
+			</form>
+
+			<nav class="filters" aria-label="Filter todos">
+				<a href="/" data-route="all">All</a>
+				<a href="/active" data-route="active">Active</a>
+				<a href="/completed" data-route="completed">Completed</a>
+			</nav>
+
+			<section id="todos" class="todos" aria-labelledby="todos-heading">
+				<h2 id="todos-heading" class="visually-hidden">Todo list</h2>
+			</section>
+
+			<p id="status" class="status" role="status" aria-live="polite"></p>
+		</main>
+
+		<script type="module" src="./app.ts"></script>
+	</body>
+</html>

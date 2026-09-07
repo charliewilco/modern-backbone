@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta
+			name="description"
+			content="A Hacker News reader built with modern Backbone primitives and the public HN API."
+		/>
+		<title>Modern Backbone News</title>
+		<link rel="stylesheet" href="./styles.css" />
+	</head>
+	<body>
+		<header class="site-header">
+			<div class="header-inner">
+				<a class="brand" href="/" data-route>
+					<span class="brand-mark" aria-hidden="true">M</span>
+					<span>Modern Backbone News</span>
+				</a>
+				<nav aria-label="Story feeds">
+					<a href="/" data-feed="top" data-route>Top</a>
+					<a href="/new" data-feed="new" data-route>New</a>
+				</nav>
+			</div>
+		</header>
+		<main id="app" class="app">
+			<p id="status" class="status" role="status" aria-live="polite">Loading stories…</p>
+			<section id="content" aria-busy="true"></section>
+		</main>
+		<footer>
+			Data from the
+			<a href="https://github.com/HackerNews/API">official Hacker News API</a>.
+		</footer>
+		<script type="module" src="./app.ts"></script>
+	</body>
+</html>

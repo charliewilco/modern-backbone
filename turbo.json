@@ -1,0 +1,30 @@
+{
+	"$schema": "https://turbo.build/schema.json",
+	"globalPassThroughEnv": ["PORT"],
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"outputs": ["dist/**"]
+		},
+		"size": {
+			"dependsOn": ["build"],
+			"outputs": []
+		},
+		"test": {
+			"dependsOn": ["^build"],
+			"outputs": []
+		},
+		"test:coverage": {
+			"dependsOn": ["^build"],
+			"outputs": []
+		},
+		"test:e2e": {
+			"dependsOn": ["build", "^build"],
+			"outputs": ["playwright-report/**", "test-results/**"]
+		},
+		"typecheck": {
+			"dependsOn": ["^build"],
+			"outputs": []
+		}
+	}
+}

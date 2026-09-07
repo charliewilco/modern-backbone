@@ -1,0 +1,7 @@
+**/.parcel-cache/
+**/coverage/
+**/dist/
+**/playwright-report/
+**/test-results/
+.turbo/
+node_modules/

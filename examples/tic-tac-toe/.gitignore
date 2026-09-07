@@ -1,0 +1,4 @@
+.parcel-cache/
+dist/
+playwright-report/
+test-results/

@@ -1,0 +1,251 @@
+:root {
+	color-scheme: light dark;
+	font-family:
+		Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	font-synthesis: none;
+	line-height: 1.5;
+	background: light-dark(#eaf2f4, #10191d);
+	color: light-dark(#14252c, #e6f0f2);
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	min-width: 20rem;
+	min-height: 100vh;
+	margin: 0;
+	padding: clamp(1rem, 5vw, 4rem);
+}
+
+button,
+input {
+	font: inherit;
+}
+
+a {
+	color: light-dark(#165f73, #85d5e8);
+}
+
+:focus-visible {
+	outline: 3px solid #33a5c1;
+	outline-offset: 3px;
+}
+
+.app {
+	width: min(100%, 46rem);
+	margin-inline: auto;
+}
+
+.app-header {
+	margin-block: 2rem 3rem;
+}
+
+.eyebrow,
+.place-context {
+	margin: 0 0 0.5rem;
+	color: light-dark(#526970, #9cb2b7);
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+h1 {
+	margin: 0;
+	font-size: clamp(3rem, 12vw, 6rem);
+	font-weight: 650;
+	letter-spacing: -0.06em;
+	line-height: 0.9;
+}
+
+.lede {
+	margin: 1rem 0 0;
+	color: light-dark(#526970, #9cb2b7);
+	font-size: 1.05rem;
+}
+
+.search label {
+	display: block;
+	margin-bottom: 0.5rem;
+	font-size: 0.9rem;
+	font-weight: 650;
+}
+
+.search-controls {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 0.6rem;
+}
+
+.search input,
+.search button {
+	min-height: 2.9rem;
+	border: 1px solid light-dark(#a9bec3, #3c555c);
+	border-radius: 0.6rem;
+}
+
+.search input {
+	min-width: 0;
+	padding: 0.7rem 0.9rem;
+	background: light-dark(#fff, #182529);
+	color: inherit;
+}
+
+.search button {
+	padding-inline: 1.25rem;
+	border-color: light-dark(#165f73, #85d5e8);
+	background: light-dark(#165f73, #85d5e8);
+	color: light-dark(#fff, #102126);
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.search button:disabled,
+.search input:disabled {
+	cursor: wait;
+	opacity: 0.55;
+}
+
+.status {
+	min-height: 1.5rem;
+	margin-block: 0.8rem;
+	color: light-dark(#526970, #9cb2b7);
+	font-size: 0.9rem;
+}
+
+.status.is-error {
+	color: light-dark(#a12c2c, #ffaaaa);
+}
+
+.panel {
+	margin-top: 1.5rem;
+	padding: clamp(1rem, 4vw, 2rem);
+	border: 1px solid light-dark(#bfd0d4, #2c4147);
+	border-radius: 1rem;
+	background: light-dark(rgb(255 255 255 / 75%), rgb(22 36 41 / 85%));
+}
+
+.panel h2 {
+	margin: 0;
+	font-size: 1.25rem;
+}
+
+.place-list {
+	margin: 1rem 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.place-list li + li {
+	border-top: 1px solid light-dark(#d6e1e3, #2c4147);
+}
+
+.place-list a {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 1rem;
+	padding-block: 0.85rem;
+	color: inherit;
+	text-decoration: none;
+}
+
+.place-name {
+	font-weight: 700;
+}
+
+.place-list a:hover .place-name {
+	text-decoration: underline;
+}
+
+.place-region {
+	color: light-dark(#526970, #9cb2b7);
+	font-size: 0.85rem;
+	text-align: right;
+}
+
+.empty-state {
+	margin: 2rem 0 1rem;
+	color: light-dark(#526970, #9cb2b7);
+	text-align: center;
+}
+
+.forecast-header {
+	display: flex;
+	align-items: start;
+	justify-content: space-between;
+	gap: 1rem;
+	margin-top: 2rem;
+}
+
+.temperature {
+	margin: 0;
+	font-size: clamp(2.5rem, 9vw, 4.75rem);
+	font-weight: 600;
+	letter-spacing: -0.06em;
+	line-height: 0.9;
+}
+
+.conditions {
+	margin-block: 1rem 2rem;
+	font-size: 1.2rem;
+}
+
+.metrics {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 0.75rem;
+	margin: 0;
+}
+
+.metrics div {
+	padding: 0.8rem;
+	border-radius: 0.6rem;
+	background: light-dark(#edf4f5, #101c20);
+}
+
+.metrics dt {
+	color: light-dark(#526970, #9cb2b7);
+	font-size: 0.75rem;
+}
+
+.metrics dd {
+	margin: 0.2rem 0 0;
+	font-weight: 700;
+}
+
+.observed-at,
+footer {
+	color: light-dark(#526970, #9cb2b7);
+	font-size: 0.8rem;
+}
+
+.observed-at {
+	margin: 1rem 0 0;
+}
+
+footer {
+	margin-block: 2rem;
+	text-align: center;
+}
+
+@media (max-width: 34rem) {
+	.search-controls,
+	.metrics {
+		grid-template-columns: 1fr;
+	}
+
+	.search button {
+		width: 100%;
+	}
+
+	.forecast-header {
+		display: block;
+	}
+
+	.temperature {
+		margin-top: 1.5rem;
+	}
+}

@@ -1,0 +1,60 @@
+{
+	"name": "@charliewilco/modern-backbone",
+	"version": "0.1.0",
+	"description": "Four small, browser-native application primitives inspired by Backbone",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist",
+		"src",
+		"README.md",
+		"LICENSE"
+	],
+	"sideEffects": false,
+	"scripts": {
+		"build": "tsdown src/index.ts --format esm --platform browser --target es2022 --dts --sourcemap --clean",
+		"check": "npm run format:check && npm run lint && npm run typecheck && npm run build && npm test",
+		"format": "biome format --write .",
+		"format:check": "biome format .",
+		"lint": "biome lint .",
+		"prepack": "npm run build",
+		"size": "npm run build --silent && tsx scripts/measure-size.ts",
+		"test": "node --import tsx --import ./test/support/dom.ts --test --test-concurrency=1 test/*.test.ts",
+		"test:coverage": "node --import tsx --import ./test/support/dom.ts --test --experimental-test-coverage --test-concurrency=1 test/*.test.ts",
+		"typecheck": "tsc -p tsconfig.json --noEmit"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/charliewilco/modern-backbone.git",
+		"directory": "modern-backbone"
+	},
+	"keywords": [
+		"backbone",
+		"typescript",
+		"browser"
+	],
+	"author": "Charlie Wilco",
+	"license": "Unlicense",
+	"type": "module",
+	"engines": {
+		"node": "^20.19.0 || ^22.13.0 || >=24.0.0"
+	},
+	"bugs": {
+		"url": "https://github.com/charliewilco/modern-backbone/issues"
+	},
+	"homepage": "https://github.com/charliewilco/modern-backbone#readme",
+	"devDependencies": {
+		"@biomejs/biome": "^2.5.12",
+		"@types/node": "^24.13.3",
+		"happy-dom": "^20.14.0",
+		"tsdown": "^0.23.0",
+		"tsx": "^4.23.13",
+		"typescript": "^7.0.2"
+	}
+}
