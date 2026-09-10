@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { afterEach, describe, test } from 'node:test';
-import type { CollectionMembershipDetail, CollectionUpdateDetail } from '../src/collection.js';
+import type {
+	CollectionInput,
+	CollectionMembershipDetail,
+	CollectionUpdateDetail,
+} from '../src/collection.js';
 import { Collection, Model } from '../src/index.js';
 import type { ModelId } from '../src/model.js';
 
@@ -22,7 +26,9 @@ class User extends Model<UserAttributes> {
 }
 
 class Users extends Collection<User> {
-	static model = User;
+	constructor(models: Iterable<CollectionInput<User>> = []) {
+		super(User, models);
+	}
 }
 
 describe('Collection membership', () => {
@@ -44,12 +50,13 @@ describe('Collection membership', () => {
 		assert.equal(users.models.length, 2);
 	});
 
-	test('rejects an invalid configured model and models of the wrong type', () => {
-		class InvalidCollection extends Collection {}
+	test('exposes the configured model and rejects invalid constructors and model instances', () => {
 		class Other extends Model {}
-		Reflect.defineProperty(InvalidCollection, 'model', { value: class Invalid {} });
+		class Invalid {}
+		const users = new Users();
 
-		assert.throws(() => new InvalidCollection([{}]), /must extend Model/);
+		assert.equal(users.model, User);
+		assert.throws(() => Reflect.construct(Collection, [Invalid, [{}]]), /must extend Model/);
 		assert.throws(() => Reflect.construct(Users, [[new Other()]]), /Expected an instance of User/);
 	});
 

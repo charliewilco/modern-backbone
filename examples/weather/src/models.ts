@@ -1,4 +1,4 @@
-import { Collection, Model } from '@charliewilco/modern-backbone';
+import { Collection, type CollectionInput, Model } from '@charliewilco/modern-backbone';
 
 export interface LocationAttributes {
 	id?: number;
@@ -33,7 +33,9 @@ export class Location extends Model<LocationAttributes> {
 }
 
 export class Locations extends Collection<Location> {
-	static override model = Location;
+	constructor(models: Iterable<CollectionInput<Location>> = []) {
+		super(Location, models);
+	}
 }
 
 export class Weather extends Model<WeatherAttributes> {}

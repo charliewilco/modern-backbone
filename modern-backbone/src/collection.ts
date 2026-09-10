@@ -1,47 +1,50 @@
 import { Model, type ModelId } from './model.js';
 
-export type AttributesOf<M extends Model> = M extends Model<infer Attributes> ? Attributes : never;
+// biome-ignore lint/suspicious/noExplicitAny: Collections accept Models of any attribute schema.
+type AnyModel = Model<any>;
 
-export type ModelConstructor<M extends Model = Model> = {
+export type AttributesOf<M extends AnyModel> =
+	M extends Model<infer Attributes> ? Attributes : never;
+
+export type ModelConstructor<M extends AnyModel = Model> = {
 	new (attributes?: Partial<AttributesOf<M>>): M;
 	endpoint: string;
 };
 
-export type CollectionInput<M extends Model> = M | Partial<AttributesOf<M>>;
+export type CollectionInput<M extends AnyModel> = M | Partial<AttributesOf<M>>;
 
-export interface CollectionMembershipDetail<M extends Model = Model> {
+export interface CollectionMembershipDetail<M extends AnyModel = Model> {
 	collection: Collection<M>;
 	index: number;
 	model: M;
 }
 
-export interface CollectionUpdateDetail<M extends Model = Model> {
+export interface CollectionUpdateDetail<M extends AnyModel = Model> {
 	added: M[];
 	collection: Collection<M>;
 	removed: M[];
 }
 
-export interface CollectionEventMap<M extends Model = Model> {
+export interface CollectionEventMap<M extends AnyModel = Model> {
 	add: CustomEvent<CollectionMembershipDetail<M>>;
 	remove: CustomEvent<CollectionMembershipDetail<M>>;
 	update: CustomEvent<CollectionUpdateDetail<M>>;
 }
 
-type RuntimeModelConstructor = {
-	new (...args: never[]): Model;
-	endpoint: string;
-};
-
 // biome-ignore lint/suspicious/noUnsafeDeclarationMerging: addEventListener is inherited from EventTarget.
-export class Collection<M extends Model = Model> extends EventTarget {
-	static model: RuntimeModelConstructor = Model;
+export class Collection<M extends AnyModel = Model> extends EventTarget {
+	readonly model: ModelConstructor<M>;
 	#models: M[] = [];
 	#byId = new Map<ModelId, M>();
 	#lifetimes = new Map<M, AbortController>();
 
-	constructor(models: Iterable<CollectionInput<M>> = []) {
+	constructor(model: ModelConstructor<M>, models: Iterable<CollectionInput<M>> = []) {
 		super();
-		for (const model of models) this.add(model);
+		if (!(model.prototype === Model.prototype || model.prototype instanceof Model)) {
+			throw new TypeError('Collection model must extend Model');
+		}
+		this.model = model;
+		for (const value of models) this.add(value);
 	}
 
 	get length(): number {
@@ -53,16 +56,11 @@ export class Collection<M extends Model = Model> extends EventTarget {
 	}
 
 	add(value: CollectionInput<M>): M {
-		const CollectionClass = this.constructor as typeof Collection;
-		const ModelClass = CollectionClass.model as ModelConstructor<M>;
-		if (!(ModelClass.prototype instanceof Model || ModelClass === Model)) {
-			throw new TypeError('Collection.model must extend Model');
-		}
-		if (value instanceof Model && !(value instanceof ModelClass)) {
-			throw new TypeError(`Expected an instance of ${ModelClass.name}`);
+		if (value instanceof Model && !(value instanceof this.model)) {
+			throw new TypeError(`Expected an instance of ${this.model.name}`);
 		}
 		const model =
-			value instanceof ModelClass ? value : new ModelClass(value as Partial<AttributesOf<M>>);
+			value instanceof this.model ? value : new this.model(value as Partial<AttributesOf<M>>);
 		if (this.#models.includes(model)) return model;
 		if (model.id !== null && model.id !== undefined) {
 			const existing = this.#byId.get(model.id);
@@ -84,7 +82,8 @@ export class Collection<M extends Model = Model> extends EventTarget {
 	}
 
 	remove(value: M | ModelId): M | undefined {
-		const model = value instanceof Model ? value : this.#byId.get(value);
+		const model =
+			typeof value === 'string' || typeof value === 'number' ? this.#byId.get(value) : value;
 		if (!model) return undefined;
 		const index = this.#models.indexOf(model);
 		if (index === -1) return undefined;
@@ -128,7 +127,7 @@ export class Collection<M extends Model = Model> extends EventTarget {
 	}
 }
 
-export interface Collection<M extends Model = Model> {
+export interface Collection<M extends AnyModel = Model> {
 	addEventListener<Type extends keyof CollectionEventMap<M>>(
 		type: Type,
 		listener: (event: CollectionEventMap<M>[Type]) => void,

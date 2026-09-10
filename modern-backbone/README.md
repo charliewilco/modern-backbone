@@ -16,7 +16,13 @@ npm install @charliewilco/modern-backbone
 ```
 
 ```ts
-import { Collection, Model, Router, View } from '@charliewilco/modern-backbone';
+import {
+	Collection,
+	type CollectionInput,
+	Model,
+	Router,
+	View,
+} from '@charliewilco/modern-backbone';
 
 interface UserAttributes {
 	id?: number;
@@ -34,7 +40,9 @@ user.addEventListener('change:name', ({ detail }) => {
 user.set('name', 'Grace');
 
 class Users extends Collection<User> {
-	static model = User;
+	constructor(models: Iterable<CollectionInput<User>> = []) {
+		super(User, models);
+	}
 }
 
 const users = new Users([user, { id: 2, name: 'Katherine' }]);
@@ -58,7 +66,7 @@ new Router()
 | Primitive | Public surface | Owns | Does not own |
 | --- | --- | --- | --- |
 | `Model<Attributes>` | `id`, `url`, `get`, `set`, `toJSON`, `fetch`, `save`, `destroy` | Typed shallow attributes, change events, one-record REST persistence | Validation, nested paths, caching, retries, auth, request coordination |
-| `Collection<Model>` | `models`, `length`, `add`, `remove`, `get`, iteration | Typed ordered membership, model construction, identity lookup | Filtering, sorting, pagination, reconciliation, collection fetching |
+| `Collection<Model>` | `model`, `models`, `length`, `add`, `remove`, `get`, iteration | Typed ordered membership, model construction, identity lookup | Filtering, sorting, pagination, reconciliation, collection fetching |
 | `View<Model, Collection>` | `el`, `model`, `collection`, `render`, `listen`, `destroy` | One element and the lifetime of its subscriptions | Templates, reactive rendering, DOM diffing, component state |
 | `Router` | `route`, `start`, `stop`, `navigate` | Typed path parameters, History API updates, `popstate` | Rendering, data loading, controllers, layouts, link interception |
 
@@ -83,8 +91,10 @@ merged through `set`. `destroy` emits `{ model }` after success.
 
 ### Collection
 
-Set `static model` on the subclass and pass that model type to `Collection`.
-Raw records become instances of that class.
+Pass the model constructor to `super`, or construct the base class directly with
+`new Collection(User, models)`. Raw records become instances of that class. The
+explicit constructor keeps the runtime model and the collection's generic type
+in sync; TypeScript rejects records and model instances from another schema.
 IDs are exact `Map` keys, so `1` and `'1'` differ. Duplicate IDs reuse the
 existing member without merging. `models` is a snapshot; use iteration for the
 live order.

@@ -1,4 +1,4 @@
-import { Collection, Model } from '@charliewilco/modern-backbone';
+import { Collection, type CollectionInput, Model } from '@charliewilco/modern-backbone';
 
 export type Feed = 'new' | 'top';
 
@@ -67,5 +67,7 @@ export class Story extends Model<StoryAttributes> {
 }
 
 export class Stories extends Collection<Story> {
-	static override model = Story;
+	constructor(models: Iterable<CollectionInput<Story>> = []) {
+		super(Story, models);
+	}
 }

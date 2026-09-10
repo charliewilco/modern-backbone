@@ -1,4 +1,4 @@
-import { Collection, Model } from '@charliewilco/modern-backbone';
+import { Collection, type CollectionInput, Model } from '@charliewilco/modern-backbone';
 
 export type Mark = 'O' | 'X';
 
@@ -41,7 +41,9 @@ export class Cell extends Model<CellAttributes> {
 }
 
 export class Cells extends Collection<Cell> {
-	static override model = Cell;
+	constructor(models: Iterable<CollectionInput<Cell>> = []) {
+		super(Cell, models);
+	}
 }
 
 export class Game extends Model<GameAttributes> {

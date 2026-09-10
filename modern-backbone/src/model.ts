@@ -11,20 +11,23 @@ export interface ModelAttributeChange<Name extends string = string, Value = unkn
 	value: Value;
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: Models of any attribute schema need an existential bound.
+type AnyModel = Model<any>;
+
 export interface ModelAttributeChangeDetail<
-	M extends Model = Model,
+	M extends AnyModel = Model,
 	Name extends string = string,
 	Value = unknown,
 > extends ModelAttributeChange<Name, Value> {
 	model: M;
 }
 
-export interface ModelChangeDetail<M extends Model = Model> {
+export interface ModelChangeDetail<M extends AnyModel = Model> {
 	changes: ModelAttributeChange[];
 	model: M;
 }
 
-export interface ModelDestroyDetail<M extends Model = Model> {
+export interface ModelDestroyDetail<M extends AnyModel = Model> {
 	model: M;
 }
 
@@ -49,7 +52,9 @@ export type ModelEventMap<
 const isRecord = (value: unknown): value is Record<string, unknown> =>
 	value !== null && typeof value === 'object' && !Array.isArray(value);
 
-const endpointFor = (model: Model): string => {
+const endpointFor = <Attributes extends { id?: ModelId | null }>(
+	model: Model<Attributes>,
+): string => {
 	const ModelClass = model.constructor as typeof Model;
 	const { endpoint } = ModelClass;
 	if (typeof endpoint !== 'string' || endpoint.length === 0) {
@@ -75,6 +80,7 @@ export class Model<
 	Attributes extends { id?: ModelId | null } = ModelAttributes,
 > extends EventTarget {
 	static endpoint = '';
+	declare private readonly attributesType: (attributes: Attributes) => Attributes;
 	#attributes: Partial<Attributes>;
 
 	constructor(attributes: Partial<Attributes> = {}) {

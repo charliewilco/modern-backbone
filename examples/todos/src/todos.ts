@@ -1,4 +1,4 @@
-import { Collection, Model } from '@charliewilco/modern-backbone';
+import { Collection, type CollectionInput, Model } from '@charliewilco/modern-backbone';
 
 export interface TodoAttributes {
 	id?: number;
@@ -20,7 +20,9 @@ export class Todo extends Model<TodoAttributes> {
 }
 
 export class Todos extends Collection<Todo> {
-	static override model = Todo;
+	constructor(models: Iterable<CollectionInput<Todo>> = []) {
+		super(Todo, models);
+	}
 }
 
 function isTodoAttributes(value: unknown): value is TodoAttributes {
