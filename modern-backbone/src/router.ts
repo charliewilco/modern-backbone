@@ -6,6 +6,7 @@ type PathParameterNames<Path extends string> = Path extends `${infer Segment}/${
 
 export type RouteParams<Pattern extends string> = Record<PathParameterNames<Pattern>, string>;
 export type RouteHandler<Pattern extends string> = (params: RouteParams<Pattern>) => void;
+export type RouteFallbackHandler = (pathname: string) => void;
 
 export interface RouterNavigateOptions {
 	replace?: boolean;
@@ -20,6 +21,8 @@ interface RegisteredRoute {
 }
 
 const parameter = /^:[A-Za-z_][A-Za-z0-9_]*$/;
+
+const normalizePathname = (pathname: string): string => pathname.replace(/\/+$/, '') || '/';
 
 const validPattern = (pattern: string): boolean => {
 	const parts = pattern.slice(1).split('/');
@@ -43,23 +46,18 @@ const decode = (value: string): string => {
 };
 
 const compileFallback = (pattern: string): Matcher => {
-	const names: string[] = [];
-	const source = pattern
-		.split('/')
-		.map((part) => {
-			if (part.startsWith(':') && part.length > 1) {
-				names.push(part.slice(1));
-				return '([^/]+)';
-			}
-			return part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-		})
-		.join('/');
-	const expression = new RegExp(`^${source}$`);
+	const expected = pattern.split('/');
 	return (path) => {
-		const match = expression.exec(path);
-		return match
-			? Object.fromEntries(names.map((name, index) => [name, decode(match[index + 1] ?? '')]))
-			: null;
+		const actual = normalizePathname(path).split('/');
+		if (actual.length !== expected.length) return null;
+
+		const params: MatchedParams = {};
+		for (const [index, expectedPart] of expected.entries()) {
+			const actualPart = actual[index] ?? '';
+			if (parameter.test(expectedPart)) params[expectedPart.slice(1)] = decode(actualPart);
+			else if (decode(actualPart) !== decode(expectedPart)) return null;
+		}
+		return params;
 	};
 };
 
@@ -67,7 +65,7 @@ const compile = (pattern: string): Matcher => {
 	if (typeof URLPattern === 'function') {
 		const urlPattern = new URLPattern({ pathname: pattern });
 		return (path) => {
-			const groups = urlPattern.exec({ pathname: path })?.pathname.groups;
+			const groups = urlPattern.exec({ pathname: normalizePathname(path) })?.pathname.groups;
 			return groups
 				? Object.fromEntries(
 						Object.entries(groups).map(([name, value]) => [name, decode(value ?? '')]),
@@ -79,6 +77,7 @@ const compile = (pattern: string): Matcher => {
 };
 
 export class Router {
+	#fallback: RouteFallbackHandler | undefined;
 	#routes: RegisteredRoute[] = [];
 	#lifetime: AbortController | undefined;
 
@@ -87,11 +86,17 @@ export class Router {
 		handler: RouteHandler<Pattern>,
 	): this {
 		if (!pattern.startsWith('/')) throw new TypeError('Route patterns must start with /');
-		if (!validPattern(pattern)) throw new TypeError(`Invalid route pattern: ${pattern}`);
+		const normalizedPattern = normalizePathname(pattern);
+		if (!validPattern(normalizedPattern)) throw new TypeError(`Invalid route pattern: ${pattern}`);
 		this.#routes.push({
 			handler: (params) => handler(params as RouteParams<Pattern>),
-			match: compile(pattern),
+			match: compile(normalizedPattern),
 		});
+		return this;
+	}
+
+	fallback(handler: RouteFallbackHandler): this {
+		this.#fallback = handler;
 		return this;
 	}
 
@@ -125,6 +130,7 @@ export class Router {
 				return true;
 			}
 		}
+		this.#fallback?.(path);
 		return false;
 	}
 }

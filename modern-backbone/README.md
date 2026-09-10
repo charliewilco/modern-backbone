@@ -68,7 +68,7 @@ new Router()
 | `Model<Attributes>` | `id`, `url`, `get`, `set`, `toJSON`, `fetch`, `save`, `destroy` | Typed shallow attributes, change events, one-record REST persistence | Validation, nested paths, caching, retries, auth, request coordination |
 | `Collection<Model>` | `model`, `models`, `length`, `add`, `remove`, `get`, iteration | Typed ordered membership, model construction, identity lookup | Filtering, sorting, pagination, reconciliation, collection fetching |
 | `View<Model, Collection>` | `el`, `model`, `collection`, `render`, `listen`, `destroy` | One element and the lifetime of its subscriptions | Templates, reactive rendering, DOM diffing, component state |
-| `Router` | `route`, `start`, `stop`, `navigate` | Typed path parameters, History API updates, `popstate` | Rendering, data loading, controllers, layouts, link interception |
+| `Router` | `route`, `fallback`, `start`, `stop`, `navigate` | Typed path parameters, History API updates, `popstate` | Rendering, data loading, controllers, layouts, link interception |
 
 ### Model
 
@@ -121,10 +121,13 @@ responsibility of this library.
 Routes are registered in priority order and match pathname literals plus named
 segments such as `/users/:id`. Literal patterns infer handler parameters, so
 that example exposes `id` as a string. The router uses `URLPattern` when
-available and a small exact-match fallback otherwise. Query strings and hashes
-stay in history but do not participate in matching. `start()` resolves the
-initial URL and listens for `popstate`; `navigate()` calls `pushState` or
-`replaceState` and resolves immediately.
+available and a small segment matcher otherwise; both decode parameters and
+encoded Unicode literals consistently. Trailing slashes are ignored for
+matching without rewriting the browser URL. Query strings and hashes stay in
+history but do not participate in matching. `fallback()` installs the single
+handler used after every route misses, with the unmatched pathname. `start()`
+resolves the initial URL and listens for `popstate`; `navigate()` calls
+`pushState` or `replaceState` and resolves immediately.
 
 ## Examples
 

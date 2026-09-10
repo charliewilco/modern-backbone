@@ -130,6 +130,43 @@ describe('Router', () => {
 		assert.equal(calls, 0);
 	});
 
+	test('uses the latest fallback for unmatched initial, navigated, and popped paths', () => {
+		resetDOM('/initial-miss');
+		const router = new Router();
+		const calls: string[] = [];
+		router.fallback((path) => calls.push(`old:${path}`));
+		router.fallback((path) => calls.push(path));
+
+		router.start();
+		router.navigate('/navigation-miss?query=yes#hash');
+		history.replaceState(null, '', '/popstate-miss');
+		window.dispatchEvent(new window.PopStateEvent('popstate'));
+
+		assert.deepEqual(calls, ['/initial-miss', '/navigation-miss', '/popstate-miss']);
+		router.stop();
+	});
+
+	test('does not invoke the fallback when a route matches', () => {
+		const router = new Router();
+		const calls: string[] = [];
+		router.route('/known', () => calls.push('route')).fallback(() => calls.push('fallback'));
+
+		router.navigate('/known');
+
+		assert.deepEqual(calls, ['route']);
+	});
+
+	test('treats trailing slashes as equivalent without rewriting the URL', () => {
+		const router = new Router();
+		const ids: string[] = [];
+		router.route('/users/:id/', ({ id }) => ids.push(id));
+
+		router.navigate('/users/42///');
+
+		assert.equal(location.pathname, '/users/42///');
+		assert.deepEqual(ids, ['42']);
+	});
+
 	test('route requires a leading slash', () => {
 		const router = new Router();
 
@@ -167,6 +204,20 @@ describe('Router', () => {
 		assert.equal(id, 'platform route');
 	});
 
+	test('uses URLPattern for encoded Unicode literal routes', {
+		skip: typeof URLPattern !== 'function',
+	}, () => {
+		const router = new Router();
+		let matched = false;
+		router.route('/mañana', () => {
+			matched = true;
+		});
+
+		router.navigate('/ma%C3%B1ana/');
+
+		assert.equal(matched, true);
+	});
+
 	test('falls back to segment matching when URLPattern is unavailable', () => {
 		const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'URLPattern');
 		Object.defineProperty(globalThis, 'URLPattern', {
@@ -187,6 +238,30 @@ describe('Router', () => {
 			assert.equal(id, 'Grace Hopper');
 			router.navigate('/fallback');
 			assert.equal(id, 'Grace Hopper');
+		} finally {
+			if (descriptor) Object.defineProperty(globalThis, 'URLPattern', descriptor);
+			else Reflect.deleteProperty(globalThis, 'URLPattern');
+		}
+	});
+
+	test('matches encoded Unicode literals when URLPattern is unavailable', () => {
+		const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'URLPattern');
+		Object.defineProperty(globalThis, 'URLPattern', {
+			configurable: true,
+			value: undefined,
+			writable: true,
+		});
+
+		try {
+			const router = new Router();
+			let matched = false;
+			router.route('/mañana', () => {
+				matched = true;
+			});
+
+			router.navigate('/ma%C3%B1ana/');
+
+			assert.equal(matched, true);
 		} finally {
 			if (descriptor) Object.defineProperty(globalThis, 'URLPattern', descriptor);
 			else Reflect.deleteProperty(globalThis, 'URLPattern');
