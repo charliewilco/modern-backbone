@@ -2,7 +2,12 @@ import assert from 'node:assert/strict';
 import { afterEach, describe, test } from 'node:test';
 
 import { Model } from '../src/index.js';
-import type { ModelAttributeChangeDetail, ModelChangeDetail, ModelId } from '../src/model.js';
+import type {
+	ModelAttributeChangeDetail,
+	ModelChangeDetail,
+	ModelEventMap,
+	ModelId,
+} from '../src/model.js';
 
 const originalFetch = globalThis.fetch;
 
@@ -113,6 +118,59 @@ describe('Model attributes', () => {
 		assert.throws(() => Reflect.apply(model.set, model, [null]), /attributes must be an object/);
 		assert.throws(() => Reflect.apply(model.set, model, [[]]), /attributes must be an object/);
 		assert.deepEqual(model.toJSON(), { name: 'Ada' });
+	});
+
+	test('unsets own attributes and emits the same change event sequence', () => {
+		const model = new User({ id: 1, name: 'Ada' });
+		const events: string[] = [];
+		let attributeDetail: ModelAttributeChangeDetail<User> | undefined;
+		let changeDetail: ModelChangeDetail<User> | undefined;
+		model.addEventListener('change:name', (event) => {
+			events.push(event.type);
+			attributeDetail = event.detail;
+		});
+		model.addEventListener('change', (event) => {
+			events.push(event.type);
+			changeDetail = event.detail;
+		});
+
+		assert.equal(model.unset('name'), model);
+
+		assert.equal(model.get('name'), undefined);
+		assert.equal(Object.hasOwn(model.toJSON(), 'name'), false);
+		assert.deepEqual(events, ['change:name', 'change']);
+		assert.deepEqual(attributeDetail, {
+			model,
+			name: 'name',
+			previous: 'Ada',
+			value: undefined,
+		});
+		assert.deepEqual(changeDetail, {
+			model,
+			changes: [{ name: 'name', previous: 'Ada', value: undefined }],
+		});
+
+		model.unset('name');
+		assert.deepEqual(events, ['change:name', 'change']);
+		assert.throws(
+			() => Reflect.apply(model.unset, model, [1]),
+			new TypeError('Model attribute name must be a string'),
+		);
+	});
+
+	test('removes typed event listeners symmetrically', () => {
+		const model = new User({ name: 'Ada' });
+		let calls = 0;
+		const listener = (event: ModelEventMap<UserAttributes, User>['change:name']) => {
+			calls += 1;
+			assert.equal(event.detail.value, 'Grace');
+		};
+
+		model.addEventListener('change:name', listener);
+		model.removeEventListener('change:name', listener);
+		model.set('name', 'Grace');
+
+		assert.equal(calls, 0);
 	});
 });
 

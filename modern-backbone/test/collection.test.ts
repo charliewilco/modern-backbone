@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { afterEach, describe, test } from 'node:test';
 import type {
+	CollectionEventMap,
 	CollectionInput,
 	CollectionMembershipDetail,
 	CollectionUpdateDetail,
@@ -132,6 +133,11 @@ describe('Collection identity updates', () => {
 		assert.equal(users.get(1), undefined);
 		assert.equal(users.get('ada'), user);
 
+		user.unset('id');
+		assert.equal(users.get('ada'), undefined);
+		assert.equal(Object.hasOwn(user.toJSON(), 'id'), false);
+
+		user.set('id', 'ada');
 		user.set('id', null);
 		assert.equal(users.get('ada'), undefined);
 		// @ts-expect-error Exercise nullish identity behavior at the runtime boundary.
@@ -249,5 +255,20 @@ describe('Collection events and cleanup', () => {
 		user.dispatchEvent(new CustomEvent('destroy', { detail: { model: user } }));
 		assert.equal(users.get(2), undefined);
 		assert.equal(updates, 1);
+	});
+
+	test('removes typed event listeners symmetrically', () => {
+		const users = new Users();
+		let calls = 0;
+		const listener = (event: CollectionEventMap<User>['add']) => {
+			calls += 1;
+			assert.equal(event.detail.model.get('name'), 'Ada');
+		};
+
+		users.addEventListener('add', listener);
+		users.removeEventListener('add', listener);
+		users.add({ name: 'Ada' });
+
+		assert.equal(calls, 0);
 	});
 });

@@ -1,10 +1,16 @@
+import type { AttributesOf, Collection, CollectionEventMap } from './collection.js';
+import type { Model, ModelEventMap } from './model.js';
+
+// biome-ignore lint/suspicious/noExplicitAny: View listeners accept Models of any attribute schema.
+type AnyModel = Model<any>;
+
 export interface ViewOptions<
-	Model extends EventTarget = EventTarget,
-	Collection extends EventTarget = EventTarget,
+	ModelTarget extends EventTarget = EventTarget,
+	CollectionTarget extends EventTarget = EventTarget,
 > {
 	el?: HTMLElement;
-	model?: Model;
-	collection?: Collection;
+	model?: ModelTarget;
+	collection?: CollectionTarget;
 }
 
 export type ViewListenOptions = Omit<AddEventListenerOptions, 'signal'>;
@@ -14,15 +20,15 @@ export interface ViewDestroyOptions {
 }
 
 export class View<
-	Model extends EventTarget = EventTarget,
-	Collection extends EventTarget = EventTarget,
+	ModelTarget extends EventTarget = EventTarget,
+	CollectionTarget extends EventTarget = EventTarget,
 > {
 	readonly el: HTMLElement;
-	readonly model: Model | undefined;
-	readonly collection: Collection | undefined;
+	readonly model: ModelTarget | undefined;
+	readonly collection: CollectionTarget | undefined;
 	#lifetime = new AbortController();
 
-	constructor(options: ViewOptions<Model, Collection> = {}) {
+	constructor(options: ViewOptions<ModelTarget, CollectionTarget> = {}) {
 		this.el = options.el ?? document.createElement('div');
 		if (!(this.el instanceof HTMLElement)) {
 			throw new TypeError('View.el must be an HTMLElement');
@@ -35,6 +41,33 @@ export class View<
 		return this;
 	}
 
+	listen<
+		Target extends AnyModel,
+		Type extends keyof ModelEventMap<AttributesOf<Target>, Target> & string,
+	>(
+		target: Target,
+		type: Type,
+		listener: (event: ModelEventMap<AttributesOf<Target>, Target>[Type]) => unknown,
+		options?: ViewListenOptions,
+	): this;
+	listen<TargetModel extends AnyModel, Type extends keyof CollectionEventMap<TargetModel>>(
+		target: Collection<TargetModel>,
+		type: Type,
+		listener: (event: CollectionEventMap<TargetModel>[Type]) => unknown,
+		options?: ViewListenOptions,
+	): this;
+	listen<Type extends keyof WindowEventMap>(
+		target: Window,
+		type: Type,
+		listener: (this: Window, event: WindowEventMap[Type]) => unknown,
+		options?: ViewListenOptions,
+	): this;
+	listen<Type extends keyof DocumentEventMap>(
+		target: Document,
+		type: Type,
+		listener: (this: Document, event: DocumentEventMap[Type]) => unknown,
+		options?: ViewListenOptions,
+	): this;
 	listen<Target extends HTMLElement, Type extends keyof HTMLElementEventMap>(
 		target: Target,
 		type: Type,

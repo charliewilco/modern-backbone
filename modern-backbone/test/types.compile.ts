@@ -1,4 +1,12 @@
-import { type AttributesOf, Collection, type CollectionInput, Model } from '../src/index.js';
+import {
+	type AttributesOf,
+	Collection,
+	type CollectionEventMap,
+	type CollectionInput,
+	Model,
+	type ModelEventMap,
+	View,
+} from '../src/index.js';
 
 interface UserAttributes {
 	id?: number;
@@ -32,6 +40,52 @@ const inferredUser: User | undefined = users.get(1);
 users.add({ id: 2, name: 'Katherine' });
 user.get('name');
 user.set('name', 'Grace');
+user.unset('name');
+
+const modelListener = (event: ModelEventMap<UserAttributes, User>['change:name']) => {
+	const value: string | undefined = event.detail.value;
+	void value;
+};
+const collectionListener = (event: CollectionEventMap<User>['add']) => {
+	const model: User = event.detail.model;
+	void model;
+};
+
+user.addEventListener('change:name', modelListener);
+user.removeEventListener('change:name', modelListener);
+user.removeEventListener('change:name', (event) => {
+	const value: string | undefined = event.detail.value;
+	void value;
+});
+users.addEventListener('add', collectionListener);
+users.removeEventListener('add', collectionListener);
+users.removeEventListener('remove', (event) => {
+	const model: User = event.detail.model;
+	void model;
+});
+
+const view = new View({ collection: users, model: user });
+view.listen(user, 'change:name', (event) => {
+	const value: string | undefined = event.detail.value;
+	// @ts-expect-error Model event detail values retain their declared types.
+	const invalid: number = event.detail.value;
+	void [value, invalid];
+});
+view.listen(users, 'add', (event) => {
+	const model: User = event.detail.model;
+	// @ts-expect-error Collection event detail retains the configured model type.
+	const invalid: Project = event.detail.model;
+	void [model, invalid];
+});
+view.listen(window, 'popstate', (event) => {
+	const state: unknown = event.state;
+	void state;
+});
+view.listen(document, 'visibilitychange', function (event) {
+	const visibility: DocumentVisibilityState = this.visibilityState;
+	const visibilityEvent: Event = event;
+	void [visibility, visibilityEvent];
+});
 
 // @ts-expect-error Collection constructors must create the declared model type.
 new Collection<User>(Project);
@@ -51,6 +105,8 @@ users.add({ title: 'Compiler' });
 user.get('title');
 // @ts-expect-error Model attribute values retain their declared types.
 user.set('name', 42);
+// @ts-expect-error Model attributes can only unset declared keys.
+user.unset('title');
 // @ts-expect-error The configured model constructor is read-only.
 users.model = Project;
 

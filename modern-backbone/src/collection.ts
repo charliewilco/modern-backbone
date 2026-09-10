@@ -138,4 +138,14 @@ export interface Collection<M extends AnyModel = Model> {
 		listener: EventListenerOrEventListenerObject | null,
 		options?: boolean | AddEventListenerOptions,
 	): void;
+	removeEventListener<Type extends keyof CollectionEventMap<M>>(
+		type: Type,
+		listener: (event: CollectionEventMap<M>[Type]) => void,
+		options?: boolean | EventListenerOptions,
+	): void;
+	removeEventListener(
+		type: string,
+		listener: EventListenerOrEventListenerObject | null,
+		options?: boolean | EventListenerOptions,
+	): void;
 }

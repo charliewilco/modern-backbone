@@ -1,7 +1,20 @@
 import assert from 'node:assert/strict';
 import { beforeEach, describe, test } from 'node:test';
-import { View } from '../src/index.js';
+import { Collection, type CollectionInput, Model, View } from '../src/index.js';
 import { resetDOM } from './support/dom.js';
+
+interface UserAttributes {
+	id?: number;
+	name?: string;
+}
+
+class User extends Model<UserAttributes> {}
+
+class Users extends Collection<User> {
+	constructor(models: Iterable<CollectionInput<User>> = []) {
+		super(User, models);
+	}
+}
 
 describe('View', () => {
 	beforeEach(() => resetDOM());
@@ -38,11 +51,13 @@ describe('View', () => {
 		assert.equal(view.render(), view);
 	});
 
-	test('listen subscribes to DOM and model events and is chainable', () => {
-		const model = new EventTarget();
-		const view = new View({ model });
+	test('listen infers and subscribes to DOM, model, and collection events', () => {
+		const model = new User({ id: 1, name: 'Ada' });
+		const collection = new Users([model]);
+		const view = new View({ collection, model });
 		let clicks = 0;
-		const details: unknown[] = [];
+		const names: Array<string | undefined> = [];
+		const added: User[] = [];
 
 		assert.equal(
 			view.listen(view.el, 'click', (event) => {
@@ -51,15 +66,20 @@ describe('View', () => {
 			}),
 			view,
 		);
-		view.listen(model, 'change:name', (event: CustomEvent<{ value: string }>) => {
-			details.push(event.detail);
+		view.listen(model, 'change:name', (event) => {
+			names.push(event.detail.value);
+		});
+		view.listen(collection, 'add', (event) => {
+			added.push(event.detail.model);
 		});
 
 		view.el.dispatchEvent(new window.MouseEvent('click'));
-		model.dispatchEvent(new CustomEvent('change:name', { detail: { value: 'Grace' } }));
+		model.set('name', 'Grace');
+		const katherine = collection.add({ id: 2, name: 'Katherine' });
 
 		assert.equal(clicks, 1);
-		assert.deepEqual(details, [{ value: 'Grace' }]);
+		assert.deepEqual(names, ['Grace']);
+		assert.deepEqual(added, [katherine]);
 	});
 
 	test('listen preserves native listener options', () => {

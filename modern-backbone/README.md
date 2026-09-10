@@ -65,17 +65,19 @@ new Router()
 
 | Primitive | Public surface | Owns | Does not own |
 | --- | --- | --- | --- |
-| `Model<Attributes>` | `id`, `url`, `get`, `set`, `toJSON`, `fetch`, `save`, `destroy` | Typed shallow attributes, change events, one-record REST persistence | Validation, nested paths, caching, retries, auth, request coordination |
+| `Model<Attributes>` | `id`, `url`, `get`, `set`, `unset`, `toJSON`, `fetch`, `save`, `destroy` | Typed shallow attributes, change events, one-record REST persistence | Validation, nested paths, caching, retries, auth, request coordination |
 | `Collection<Model>` | `model`, `models`, `length`, `add`, `remove`, `get`, iteration | Typed ordered membership, model construction, identity lookup | Filtering, sorting, pagination, reconciliation, collection fetching |
 | `View<Model, Collection>` | `el`, `model`, `collection`, `render`, `listen`, `destroy` | One element and the lifetime of its subscriptions | Templates, reactive rendering, DOM diffing, component state |
 | `Router` | `route`, `fallback`, `start`, `stop`, `navigate` | Typed path parameters, History API updates, `popstate` | Rendering, data loading, controllers, layouts, link interception |
 
 ### Model
 
-`set(name, value)` and `set(attributes)` commit synchronously and return the
-model. A changed key emits `change:<name>` with
+`set(name, value)`, `set(attributes)`, and `unset(name)` commit synchronously
+and return the model. `unset` deletes the own attribute and is a no-op when it
+is already absent. A changed key emits `change:<name>` with
 `{ model, name, previous, value }`; a batch then emits `change` with
-`{ model, changes }`. Listeners see the fully committed batch.
+`{ model, changes }`. An unset change has an `undefined` value. Listeners see
+the fully committed batch.
 
 Persistence follows one convention:
 
@@ -109,12 +111,13 @@ policy into the library.
 
 ### View
 
-A View owns an `HTMLElement`. `listen()` is a thin `addEventListener` helper
-using one private `AbortController`. `destroy()` aborts every owned subscription
-and removes the element; pass `{ remove: false }` to retain it. Rendering stays
-explicit and imperative. Applications that want safe tagged templates can add
-the separate `@charliewilco/modern-handlebars` package; templating is not a
-responsibility of this library.
+A View owns an `HTMLElement`. `listen()` is a typed `addEventListener` helper
+for DOM, Model, and Collection targets using one private `AbortController`.
+`destroy()` aborts every owned subscription and removes the element; pass
+`{ remove: false }` to retain it. Rendering stays explicit and imperative.
+Applications that want safe tagged templates can add the separate
+`@charliewilco/modern-handlebars` package; templating is not a responsibility of
+this library.
 
 ### Router
 
@@ -162,10 +165,9 @@ to `dist`. Tests use Node's built-in test runner with `tsx`; Happy DOM supplies
 the browser globals, not an alternate component or event system.
 
 The size command reports both forms of the core. The authored TypeScript is
-**455 executable lines / 523 physical lines / 15.5 kB**, including the generic
-API and event-map declarations. tsdown bundles that into **278 executable lines
-/ 288 physical lines / 8.9 kB** of ESM, keeping the runtime inside the target
-without removing type information.
+**525 executable lines / 605 physical lines / 18.9 kB**, including the generic
+API and event-map declarations. tsdown bundles that into **306 executable lines
+/ 316 physical lines / 9.8 kB** of ESM without removing type information.
 
 The safely removable pieces are the aggregate `update` convenience event and
 the no-op base `render`; they remain because one simplifies membership-driven

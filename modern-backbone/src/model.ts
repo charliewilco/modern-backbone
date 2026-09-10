@@ -8,7 +8,7 @@ export interface ModelAttributes {
 export interface ModelAttributeChange<Name extends string = string, Value = unknown> {
 	name: Name;
 	previous: Value | undefined;
-	value: Value;
+	value: Value | undefined;
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: Models of any attribute schema need an existential bound.
@@ -133,6 +133,24 @@ export class Model<
 		return this;
 	}
 
+	unset<Key extends AttributeName<Attributes>>(name: Key): this {
+		if (typeof name !== 'string') throw new TypeError('Model attribute name must be a string');
+		if (!Object.hasOwn(this.#attributes, name)) return this;
+
+		const change: ModelAttributeChange = {
+			name,
+			previous: this.#attributes[name],
+			value: undefined,
+		};
+		Reflect.deleteProperty(this.#attributes, name);
+
+		const attributeDetail: ModelAttributeChangeDetail<this> = { model: this, ...change };
+		this.dispatchEvent(new CustomEvent(`change:${name}`, { detail: attributeDetail }));
+		const changeDetail: ModelChangeDetail<this> = { changes: [change], model: this };
+		this.dispatchEvent(new CustomEvent('change', { detail: changeDetail }));
+		return this;
+	}
+
 	toJSON(): Partial<Attributes> {
 		return { ...this.#attributes };
 	}
@@ -181,5 +199,15 @@ export interface Model<Attributes extends { id?: ModelId | null } = ModelAttribu
 		type: string,
 		listener: EventListenerOrEventListenerObject | null,
 		options?: boolean | AddEventListenerOptions,
+	): void;
+	removeEventListener<Type extends keyof ModelEventMap<Attributes, this> & string>(
+		type: Type,
+		listener: (event: ModelEventMap<Attributes, this>[Type]) => void,
+		options?: boolean | EventListenerOptions,
+	): void;
+	removeEventListener(
+		type: string,
+		listener: EventListenerOrEventListenerObject | null,
+		options?: boolean | EventListenerOptions,
 	): void;
 }
