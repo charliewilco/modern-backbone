@@ -2,6 +2,7 @@
 	"name": "@charliewilco/modern-backbone",
 	"version": "0.1.0",
 	"description": "Four small, browser-native application primitives inspired by Backbone",
+	"source": "./src/index.ts",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"exports": {

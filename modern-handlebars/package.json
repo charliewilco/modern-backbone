@@ -2,6 +2,7 @@
 	"name": "@charliewilco/modern-handlebars",
 	"version": "0.1.0",
 	"description": "A tiny, safe tagged-template helper for browser DOM fragments",
+	"source": "./src/index.ts",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"exports": {
