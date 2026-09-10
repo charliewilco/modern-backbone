@@ -17,12 +17,16 @@ documentation concerns out of the published packages.
 
 ```sh
 npm install
+npm test
 npm run check
 ```
 
 Turbo coordinates workspace builds, tests, and type-checking. Each code
 workspace owns one `tsconfig.json`; compiler configuration follows package
 boundaries rather than individual build artifacts.
+
+`npm test` runs both library unit suites and all four headless Playwright suites.
+Each example owns a distinct local port, so Turbo can run them concurrently.
 
 Run any example from the repository root:
 
