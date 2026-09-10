@@ -25,7 +25,9 @@
 		"lint": "biome lint .",
 		"prepack": "npm run build",
 		"size": "npm run build --silent && tsx scripts/measure-size.ts",
-		"test": "node --import tsx --import ./test/support/dom.ts --test --test-concurrency=1 test/*.test.ts",
+		"test": "npm run test:modern && npm run test:upstream",
+		"test:modern": "node --import tsx --import ./test/support/dom.ts --test --test-concurrency=1 test/*.test.ts",
+		"test:upstream": "tsx test/upstream/verify-corpus.ts && node --import tsx --import ./test/support/dom.ts --test --test-concurrency=1 test/upstream/*.test.ts",
 		"test:coverage": "node --import tsx --import ./test/support/dom.ts --test --experimental-test-coverage --test-concurrency=1 test/*.test.ts",
 		"typecheck": "tsc -p tsconfig.json --noEmit"
 	},
@@ -51,10 +53,16 @@
 	"homepage": "https://github.com/charliewilco/modern-backbone#readme",
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.12",
+		"@types/backbone": "1.4.23",
+		"@types/jquery": "3.5.34",
 		"@types/node": "^24.13.3",
+		"@types/underscore": "1.13.0",
+		"backbone": "1.6.1",
 		"happy-dom": "^20.14.0",
+		"jquery": "3.7.1",
 		"tsdown": "^0.23.0",
 		"tsx": "^4.23.13",
-		"typescript": "^7.0.2"
+		"typescript": "^7.0.2",
+		"underscore": "1.13.8"
 	}
 }

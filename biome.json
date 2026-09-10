@@ -9,7 +9,8 @@
 			"!**/coverage",
 			"!**/dist",
 			"!**/playwright-report",
-			"!**/test-results"
+			"!**/test-results",
+			"!modern-backbone/test/upstream/vendor"
 		]
 	},
 	"formatter": {

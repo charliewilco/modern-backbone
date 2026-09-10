@@ -1,26 +1,34 @@
 # Backbone test provenance
 
-The behavioral catalog was reviewed from
-[`jashkenas/backbone`](https://github.com/jashkenas/backbone) at commit
-`f229c75b194a63a8e07a3313ce43e8d2dc105327`.
+The `upstream/vendor` directory contains the eight JavaScript QUnit suites from
+[`jashkenas/backbone`](https://github.com/jashkenas/backbone) 1.6.1 at commit
+[`da75718e896e52e84aa1f0411ba67fafcdcf6af3`](https://github.com/jashkenas/backbone/commit/da75718e896e52e84aa1f0411ba67fafcdcf6af3).
+The files are vendored verbatim and remain covered by Backbone's MIT license in
+`UPSTREAM-LICENSE`.
 
-That upstream suite contains 440 QUnit cases across Model (112), Collection
-(144), View (34), Router and History (77), Sync (18), and Backbone's custom
-Events mixin (55). It targets the full Backbone API, including Underscore
-methods, validation, parsing, comparators, callback-style sync, hash routing,
-delegated jQuery events, and other features this project deliberately excludes.
+The corpus contains 442 QUnit cases:
 
-The local tests are TypeScript tests authored for Node's test runner. They adapt
-the upstream contracts that still belong to the smaller public surface:
+| Suite | Cases |
+| --- | ---: |
+| `noconflict.js` | 1 |
+| `debuginfo.js` | 1 |
+| `events.js` | 55 |
+| `model.js` | 112 |
+| `collection.js` | 144 |
+| `router.js` | 77 |
+| `view.js` | 34 |
+| `sync.js` | 18 |
 
-| Local suite | Upstream behavior retained |
-| --- | --- |
-| `model.test.ts` | keyed reads, object attributes, falsey IDs, no-op sets, fully committed batch changes, encoded resource URLs, create/update/read/delete persistence, request options, and failure behavior |
-| `collection.test.ts` | raw-record conversion, exact ID lookup, duplicate identity, ordered insertion/removal, ID reindexing, removal cleanup, destroy-driven removal, and add/remove/update ordering |
-| `view.test.ts` | default and supplied elements, chainable rendering, DOM and domain-event listening, listener options, removal, and complete subscription cleanup |
-| `router.test.ts` | simple and named routes, registration precedence, parameter decoding, malformed escapes, query/hash exclusion, push/replace state, initial resolution, restart, popstate, and unmatched paths |
+`upstream/inheritance.test.ts` translates the separate upstream CoffeeScript
+inheritance smoke test into one TypeScript `node:test` case. Together, the
+oracle is 443 tests.
 
-The other upstream cases are not copied as skipped tests. A permanent wall of
-skips would imply a compatibility roadmap and make the intentionally absent API
-look unfinished. Adding one of those behaviors requires first showing why it
-cannot live in application code.
+`npm run test:upstream` first verifies every vendored file's SHA-256 digest and
+registered case count without network access. A small adapter then runs the
+unchanged QUnit bodies through Node's test runner, with `tsx` and Happy DOM.
+Pinned development dependencies provide Backbone 1.6.1, jQuery, and Underscore.
+
+This oracle tests the pinned Backbone release itself. It preserves the upstream
+behavioral record; it is not a claim that Modern Backbone is drop-in compatible.
+Modern Backbone's intentionally smaller contracts remain in the adjacent
+TypeScript test files and run separately through `npm run test:modern`.
